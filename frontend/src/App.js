@@ -6,12 +6,16 @@ import Result from './pages/Result';
 import BuyCredit from './pages/BuyCredit';
 import Footer from './components/Footer';
 import Login from './components/Login';
+import { useContext } from 'react';
+import { AppContext } from './context/AppContext';
 
 function App() {
+  const {showLogin} = useContext(AppContext);
+
   return (
     <div className="px-4 sm:px-8 md:px-17 lg:px-40 min-h-screen bg-gradient-to-b from-teal-100 to-orange-50">
       <Navbar/>
-      <Login/>
+      {showLogin && <Login/>}
       <Routes>
         <Route path='/' element={<Home/>}/>
         <Route path='/result' element={<Result/>} />

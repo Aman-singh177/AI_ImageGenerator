@@ -1,13 +1,18 @@
 import React, { useContext } from 'react'
 import { assets, plans } from '../assets/assets'
 import { AppContext } from '../context/AppContext'
+import {motion} from 'framer-motion'
 
 const BuyCredit = () => {
 
   const {user} = useContext(AppContext);
 
   return (
-    <div className='flex flex-col items-center justify-center mt-32'>
+    <motion.div className='flex flex-col items-center justify-center mt-20'
+      initial={{opacity:0.2, y:100}}
+      transition={{duration:1}}
+      whileInView={{opacity:1,y:0}}
+      viewport={{once:true}}  >
       <button className='py-2 px-8 border border-gray-400 rounded-full bg-white/20'>OUR PLANS</button>
       <h1 className='mt-10 text-3xl md:text-4xl font-semibold'>Choose the plan</h1>
       <div className='flex flex-wrap gap-10 '>
@@ -29,8 +34,8 @@ const BuyCredit = () => {
         )) 
       }
       </div>
-      
-    </div>
+      <br/> <br/> <br/>  
+    </motion.div>
   )
 }
 
