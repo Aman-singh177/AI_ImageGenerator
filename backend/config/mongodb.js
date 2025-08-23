@@ -1,13 +1,13 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 
-const url = process.env.MONGODB_URL;
-
-const connectDB = async () =>{
-    mongoose.connection.on('connected',()=>{
-        console.log("Database connected")
-    })
-    await mongoose.connect(`${url}/imagify`);
+const connectDB = async() => {
+    try{
+        await mongoose.connect('mongodb://127.0.0.1:27017/Imgify')
+    .then(() => console.log("DB Connected"));
+    }
+    catch(err){
+        console.log("Database error ",err);
+    }
 }
 
-export default connectDB
-
+export default connectDB;

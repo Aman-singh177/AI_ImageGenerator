@@ -1,0 +1,16 @@
+import express from 'express'
+import {registeredUser, loginUser, userCredits} from '../controllers/userController.js'
+import userAuth from '../middlewares/auth.js';
+
+const userRouter = express.Router();
+
+userRouter.post('/register', registeredUser)
+userRouter.post('/login', loginUser)
+// to execute usercredits we need userID to get userID we need to execute userAuth   
+userRouter.post('/credits', userAuth, userCredits)
+
+export default userRouter
+
+// localhost:4000/api/user/register  when we hit this end point  then it will execute 
+// this registeredUser controller function
+
