@@ -7,7 +7,7 @@ const userRouter = express.Router();
 userRouter.post('/register', registeredUser)
 userRouter.post('/login', loginUser)
 // to execute usercredits we need userID to get userID we need to execute userAuth   
-userRouter.post('/credits', userAuth, userCredits)
+userRouter.get('/credits', userAuth, userCredits)
 
 export default userRouter
 

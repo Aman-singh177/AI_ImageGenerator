@@ -1,5 +1,5 @@
 import axios from "axios";
-import userModel from "../models/userModel";
+import userModel from "../models/userModel.js";
 import FormData from "form-data";
 
 export const generateImage = async (req,res) => {
@@ -18,7 +18,7 @@ export const generateImage = async (req,res) => {
         const formData = new FormData()
         formData.append('prompt',prompt);
 
-        const {data} = await axios.post('http://clipdrop-api.co/text-to-image/v1', formData , {
+        const {data} = await axios.post('https://clipdrop-api.co/text-to-image/v1', formData , {
             headers: {
                 'x-api-key' : process.env.CLIPDROP_API,
             },
@@ -35,6 +35,5 @@ export const generateImage = async (req,res) => {
     }
     catch(error){
         console.log(error.message);
-    }
+    } 
 }
- 
