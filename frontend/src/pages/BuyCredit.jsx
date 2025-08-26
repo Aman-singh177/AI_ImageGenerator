@@ -2,10 +2,61 @@ import React, { useContext } from 'react'
 import { assets, plans } from '../assets/assets'
 import { AppContext } from '../context/AppContext'
 import {motion} from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const BuyCredit = () => {
 
-  const {user} = useContext(AppContext);
+  const {user, backendUrl, loadCreditsData, token, setShowLogin} = useContext(AppContext);
+  const navigate = useNavigate();
+
+  const initPay = async (order) =>{ 
+    if (!window.Razorpay) {
+      toast.error("Razorpay SDK failed to load. Are you online?");
+      return;
+    }
+    console.log("Using Razorpay key:", process.env.REACT_APP_RAZORPAY_KEY_ID);
+    const options = {
+      key : process.env.REACT_APP_RAZORPAY_KEY_ID,
+      amount : order.amount,
+      currency : order.currency,
+      name : 'Credit Payment',
+      description : 'Credit Payment',
+      order_id : order.id,
+      receipt : order.receipt,
+      handler: async (response) => {
+        console.log(response);
+      }
+    }
+    const rzp = new window.Razorpay(options);
+    rzp.open()
+  }
+
+  const paymentRazorpay = async (planId) => {
+    try {
+      if(!user){
+        console.log("User not logged in, showing login");
+        setShowLogin(true);
+        return;
+      }
+      console.log("User:", user);
+    console.log("Token:", token);
+    console.log("Plan ID:", planId);
+
+      console.log("Calling backend...");
+      const {data} =  await axios.post(backendUrl + '/api/user/pay-razor', {planId}, {headers : {token}})
+      console.log("Backend response:", data);
+      if(data.success){
+        initPay(data.order);
+      }else {
+        toast.error("Payment initiation failed.");
+      }
+    } catch (error) {
+      console.error("Error in paymentRazorpay:", error);
+      toast.error(error.message);
+    }
+  }
 
   return (
     <motion.div className='flex flex-col items-center justify-center mt-20'
@@ -28,7 +79,8 @@ const BuyCredit = () => {
               <p className=''>/{item.credits}</p>
             </div>
             
-            <button className='bg-black px-20 py-3 rounded text-white text-sm'> 
+            <button onClick={() => 
+              paymentRazorpay(item.id)} className='bg-black px-20 py-3 rounded text-white text-sm'> 
               {user ? 'Purchase' : 'Get Started' } </button>
           </div>
         )) 
@@ -40,3 +92,4 @@ const BuyCredit = () => {
 }
 
 export default BuyCredit
+ 

@@ -2,6 +2,7 @@ import userModel from "../models/userModel.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import razorpay from 'razorpay'
+import transactionModel from "../models/transactionModel.js";
 
 const registeredUser = async (req,res) =>{
     try{
@@ -70,14 +71,20 @@ const razorpayInstance = new razorpay({
 
 const paymentRazorpay = async(req,res) => {
     try{
-        const {userId, planId} = req.body;
+        const userId = req.user.id; 
+        const { planId} = req.body;
+        console.log("Debug: Received payment request");
+    console.log("Debug: userId =", userId);
+    console.log("Debug: planId =", planId);
         const userData = await userModel.findById(userId)
+        console.log("Debug: userData fetched =", userData ? userData.name : null);
 
         if(!userId || !planId){
+            console.log("Error: Missing userId or planId");
             return res.json({success: false, message : "Mossong details"})
         }
 
-        let credits, plan, amount, date
+        let credits, plan, amount
 
         switch (planId){
             case 'Basic':
@@ -99,9 +106,30 @@ const paymentRazorpay = async(req,res) => {
                 break;
             
             default:
+                console.log("Error: Plan not found");
                 return res.json({success:false, message : 'Plan not found'});
         }
-        date = Date.now()
+        const date = Date.now();
+        const transactionData = {
+            userId,plan, amount,credits,payment:"Pending ", date 
+        }
+        console.log("Debug: Creating transaction with data:", transactionData);
+        const newtransaction = await transactionModel.create(transactionData);
+        console.log("Debug: Transaction created with ID:", newtransaction._id);
+
+        const options = {
+            amount : amount * 100,
+            currency : process.env.CURRENCY || 'INR',
+            receipt : newtransaction._id.toString(),
+        }
+        console.log("Debug: Creating Razorpay order with options:", options);
+        await razorpayInstance.orders.create(options, (error, order) => {
+            if(error){
+                console.log(error);
+                return res.json({success : false, message : error})
+            }
+            res.json({success : true , order})
+        })
     }
     catch(error){
         console.log(error);
@@ -109,4 +137,4 @@ const paymentRazorpay = async(req,res) => {
     }
 }
 
-export {registeredUser, loginUser,userCredits}
+export {registeredUser, loginUser,userCredits, paymentRazorpay}
